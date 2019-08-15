@@ -1,71 +1,54 @@
-import React from "react"
-import { Link, graphql } from "gatsby"
+import React from 'react';
+import PropTypes from 'prop-types';
+import Layout from 'components/layout';
+import Box from 'components/box';
+import Title from 'components/title';
+import Gallery from 'components/gallery';
+import IOExample from 'components/io-example';
+import Modal from 'containers/modal';
+import { graphql } from 'gatsby';
 
-import Bio from "../components/bio"
-import Layout from "../components/layout"
-import SEO from "../components/seo"
-import { rhythm } from "../utils/typography"
+const Index = ({ data }) => (
+  <Layout>
+    <Box>
+      <Title as="h2" size="large">
+        {data.homeJson.content.childMarkdownRemark.rawMarkdownBody}
+      </Title>
+      
+    </Box>
+    <Gallery items={data.homeJson.gallery} />
+    <div style={{ height: '50vh' }} />
+    <IOExample />
+  </Layout>
+);
 
-class BlogIndex extends React.Component {
-  render() {
-    const { data } = this.props
-    const siteTitle = data.site.siteMetadata.title
-    const posts = data.allMarkdownRemark.edges
+Index.propTypes = {
+  data: PropTypes.object.isRequired,
+};
 
-    return (
-      <Layout location={this.props.location} title={siteTitle}>
-        <SEO title="All posts" />
-        <Bio />
-        {posts.map(({ node }) => {
-          const title = node.frontmatter.title || node.fields.slug
-          return (
-            <div key={node.fields.slug}>
-              <h3
-                style={{
-                  marginBottom: rhythm(1 / 4),
-                }}
-              >
-                <Link style={{ boxShadow: `none` }} to={node.fields.slug}>
-                  {title}
-                </Link>
-              </h3>
-              <small>{node.frontmatter.date}</small>
-              <p
-                dangerouslySetInnerHTML={{
-                  __html: node.frontmatter.description || node.excerpt,
-                }}
-              />
-            </div>
-          )
-        })}
-      </Layout>
-    )
-  }
-}
+export default Index;
 
-export default BlogIndex
-
-export const pageQuery = graphql`
-  query {
-    site {
-      siteMetadata {
-        title
+export const query = graphql`
+  query HomepageQuery {
+    homeJson {
+      title
+      content {
+        childMarkdownRemark {
+          html
+          rawMarkdownBody
+        }
       }
-    }
-    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
-      edges {
-        node {
-          excerpt
-          fields {
-            slug
-          }
-          frontmatter {
-            date(formatString: "MMMM DD, YYYY")
-            title
-            description
+      gallery {
+        title
+        copy
+        image {
+          childImageSharp {
+            fluid(maxHeight: 500, quality: 90) {
+              ...GatsbyImageSharpFluid_withWebp
+            }
           }
         }
       }
     }
   }
-`
+`;
